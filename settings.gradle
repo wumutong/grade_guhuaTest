@@ -1,0 +1,4 @@
+rootProject.name = 'grade_guhuaTest'
+include 'guhua_1'
+findProject(':guhua_1')?.name = 'guhua'
+
