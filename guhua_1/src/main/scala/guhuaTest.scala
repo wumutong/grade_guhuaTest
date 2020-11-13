@@ -3,7 +3,7 @@ package Scala
 
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.SparkConf
-import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.{DataFrame, SparkSession}
 
 
 
@@ -15,6 +15,7 @@ object guhuaTest {
     val conf = new SparkConf(true)
       .setAppName("guhua")
       .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+      .setMaster("local[*]")
     val spark = SparkSession
       .builder()
       .config(conf)
@@ -29,6 +30,7 @@ object guhuaTest {
     //加载相关数据 签名+通道号 用于生成指定相关条件
     val hdfsText = sc.textFile(paths).collect()
 
+    val path = args(0).split(",")(0)
     //获取指定相关时间范围
     val start_date = args(0).split(",")(1)
     val end_date = args(0).split(",")(2)
@@ -36,26 +38,12 @@ object guhuaTest {
 
     //生成指定sql
     val concatSql = formatSql(hdfsText, "num", "sign_sha256",start_date,end_date)
-    //加载sql指定dataFrame
-    var guhua_dataframe = new HiveDataAccess(spark).sqlQuery(concatSql)
-
     //写入到指定hive表
+    val guaHuaDF: DataFrame = spark.sql(concatSql)
 
-
-
-
-
-
-
-    spark.sql(concatSql)
-
-
-
-
-
-    println(concatSql)
-
-
+    //生成指定文件目录
+    val months = start_date.substring(0,6)
+    guaHuaDF.write.mode(String).text("/tmp/settlement/PBC/dm_test/"+months+"/"+months+".txt")
   }
 
 

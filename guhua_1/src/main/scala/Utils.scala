@@ -7,6 +7,8 @@ import org.apache.spark.sql.DataFrame
 
 
 object Utils {
+
+
   val dbType = "Hive"
   // 读取配置文件
   private val props = new Properties()
