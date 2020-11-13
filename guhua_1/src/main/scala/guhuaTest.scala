@@ -15,7 +15,6 @@ object guhuaTest {
     val conf = new SparkConf(true)
       .setAppName("guhua")
       .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-      .setMaster("local[*]")
     val spark = SparkSession
       .builder()
       .config(conf)
@@ -34,27 +33,29 @@ object guhuaTest {
     val start_date = args(0).split(",")(1)
     val end_date = args(0).split(",")(2)
 
+    val tableName = args(0).split(",")(3)
 
     //生成指定sql
-    val concatSql = formatSql(hdfsText, "num", "sign_sha256",start_date,end_date)
+    val concatSql = formatSql(hdfsText, "num", "sign_sha256",start_date,end_date,tableName)
     //写入到指定hive表
     val guaHuaDF: DataFrame = spark.sql(concatSql)
 
     //生成指定文件目录
     val months = start_date.substring(0,6)
-    guaHuaDF.write.mode("overwrite").text("/tmp/settlement/PBC/dm_test/"+months+"/"+months+".txt")
+
+    guaHuaDF.write.orc("/tmp/settlement/yellowpage_onlinepub/dm_OnlineAndYellowPage_pub/months="+months)
   }
 
 
 
 
   // 根据场景 拼写相关sql
-  def formatSql(key: Array[String], numName: String, sign_nameName: String,startDate:String,endDate:String): String = {
+  def formatSql(key: Array[String], numName: String, sign_nameName: String,startDate:String,endDate:String,tableName:String): String = {
 
     var formatSql = "select sign_sha256,brand,count(distinct CASE WHEN ac>0 THEN imei_sha256 ELSE NULL end) as act_uv," +
-                    "count(distinct imei_sha256 ) as act_all " +
-                    "from" +
-                    " logstash.dws_pubdefault_s_sms_day" +
+                    " count(distinct imei_sha256 ) as act_all " +
+                    " from " +
+                     tableName +
                     " where " +
                     " stat_date >= " + startDate + " and stat_date <= "+endDate +
                     " and ("
@@ -146,7 +147,7 @@ object guhuaTest {
     }
 
 
-    formatSql += ")"
+    formatSql += ") group by sign_sha256,brand"
     formatSql
 
   }
