@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="grade_guhuaTest:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/grade_guhuaTest_jar</output-path>
+    <root id="archive" name="grade_guhuaTest.jar">
+      <element id="module-output" name="grade_guhuaTest.guhua.main" />
+    </root>
+  </artifact>
+</component>

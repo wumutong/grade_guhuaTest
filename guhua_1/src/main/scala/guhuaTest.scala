@@ -43,7 +43,7 @@ object guhuaTest {
 
     //生成指定文件目录
     val months = start_date.substring(0,6)
-    guaHuaDF.write.mode(String).text("/tmp/settlement/PBC/dm_test/"+months+"/"+months+".txt")
+    guaHuaDF.write.mode("overwrite").text("/tmp/settlement/PBC/dm_test/"+months+"/"+months+".txt")
   }
 
 
