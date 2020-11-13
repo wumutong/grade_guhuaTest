@@ -30,7 +30,6 @@ object guhuaTest {
     //加载相关数据 签名+通道号 用于生成指定相关条件
     val hdfsText = sc.textFile(paths).collect()
 
-    val path = args(0).split(",")(0)
     //获取指定相关时间范围
     val start_date = args(0).split(",")(1)
     val end_date = args(0).split(",")(2)
@@ -52,7 +51,7 @@ object guhuaTest {
   // 根据场景 拼写相关sql
   def formatSql(key: Array[String], numName: String, sign_nameName: String,startDate:String,endDate:String): String = {
 
-    var formatSql = "select sign_sha256,brand,(count(distinct CASE WHEN ac>0 THEN imei_sha256 ELSE NULL end) as act_uv," +
+    var formatSql = "select sign_sha256,brand,count(distinct CASE WHEN ac>0 THEN imei_sha256 ELSE NULL end) as act_uv," +
                     "count(distinct imei_sha256 ) as act_all " +
                     "from" +
                     " logstash.dws_pubdefault_s_sms_day" +
