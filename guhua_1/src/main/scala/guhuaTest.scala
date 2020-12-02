@@ -11,39 +11,43 @@ import org.apache.spark.sql.{DataFrame, SparkSession}
 object guhuaTest {
   def main(args: Array[String]): Unit = {
 
-    Logger.getLogger("org").setLevel(Level.ERROR)
-    val conf = new SparkConf(true)
-      .setAppName("guhua")
-      .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-    val spark = SparkSession
-      .builder()
-      .config(conf)
-      .enableHiveSupport()
-      .getOrCreate()
-    import spark.implicits._
-    val sc = spark.sparkContext
+//    Logger.getLogger("org").setLevel(Level.ERROR)
+//    val conf = new SparkConf(true)
+//      .setAppName("guhua")
+//      .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+//    val spark = SparkSession
+//      .builder()
+//      .config(conf)
+//      .enableHiveSupport()
+//      .getOrCreate()
+//    import spark.implicits._
+//    val sc = spark.sparkContext
+//
+//    //获取指定路径
+//    val paths = args(0).split(",")(0)
+//
+//    //加载相关数据 签名+通道号 用于生成指定相关条件
+//    val hdfsText = sc.textFile(paths).collect()
+//
+//    //获取指定相关时间范围
+//    val start_date = args(0).split(",")(1)
+//    val end_date = args(0).split(",")(2)
+//
+//    val tableName = args(0).split(",")(3)
 
-    //获取指定路径
-    val paths = args(0).split(",")(0)
-
-    //加载相关数据 签名+通道号 用于生成指定相关条件
-    val hdfsText = sc.textFile(paths).collect()
-
-    //获取指定相关时间范围
-    val start_date = args(0).split(",")(1)
-    val end_date = args(0).split(",")(2)
-
-    val tableName = args(0).split(",")(3)
-
+    val hdfsText = Utils.readFromTxtByLine("/Users/wumutong/Desktop/11_yellow_online/sign_num.txt")
     //生成指定sql
-    val concatSql = formatSql(hdfsText, "num", "sign_sha256",start_date,end_date,tableName)
-    //写入到指定hive表
-    val guaHuaDF: DataFrame = spark.sql(concatSql)
+    val concatSql = formatSql(hdfsText, "num", "sign_sha256","20201101","20201131","logstash.dws_pubdefault_s_sms_day")
 
-    //生成指定文件目录
-    val months = start_date.substring(0,6)
+    println(concatSql)
 
-    guaHuaDF.write.orc("/tmp/settlement/yellowpage_onlinepub/dm_OnlineAndYellowPage_pub/months="+months)
+//    //写入到指定hive表
+//    val guaHuaDF: DataFrame = spark.sql(concatSql)
+//
+//    //生成指定文件目录
+//    val months = start_date.substring(0,6)
+//
+//    guaHuaDF.write.orc("/tmp/settlement/yellowpage_onlinepub/dm_OnlineAndYellowPage_pub/months="+months)
   }
 
 

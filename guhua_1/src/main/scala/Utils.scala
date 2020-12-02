@@ -11,24 +11,24 @@ object Utils {
 
   val dbType = "Hive"
   // 读取配置文件
-  private val props = new Properties()
-  props.load(new FileInputStream("application.properties"))
-  // 服务参数配置
-  private val url: String = props.getProperty("mysql.url")
-  private val user: String = props.getProperty("mysql.user")
-  private val password: String = props.getProperty("mysql.password")
-
-  def write(df: DataFrame, dbtable: String, url: String = url, user: String = user, password: String = password) = {
-    df.write.mode("Append").format("jdbc").options(
-      Map(
-        "driver" -> "com.mysql.jdbc.Driver",
-        "url" -> url,
-        "user" -> user,
-        "password" -> password,
-        "dbtable" -> dbtable,
-        "batchsize" -> "2000",
-        "truncate" -> "false")).save()
-  }
+//  private val props = new Properties()
+//  props.load(new FileInputStream("application.properties"))
+//  // 服务参数配置
+//  private val url: String = props.getProperty("mysql.url")
+//  private val user: String = props.getProperty("mysql.user")
+//  private val password: String = props.getProperty("mysql.password")
+//
+//  def write(df: DataFrame, dbtable: String, url: String = url, user: String = user, password: String = password) = {
+//    df.write.mode("Append").format("jdbc").options(
+//      Map(
+//        "driver" -> "com.mysql.jdbc.Driver",
+//        "url" -> url,
+//        "user" -> user,
+//        "password" -> password,
+//        "dbtable" -> dbtable,
+//        "batchsize" -> "2000",
+//        "truncate" -> "false")).save()
+//  }
 
   def readFromTxtByLine(filePath: String) = {
     //导入Scala的IO包
