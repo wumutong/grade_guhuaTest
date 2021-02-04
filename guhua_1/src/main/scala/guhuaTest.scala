@@ -35,7 +35,7 @@ object guhuaTest {
 //
 //    val tableName = args(0).split(",")(3)
 
-    val hdfsText = Utils.readFromTxtByLine("/Users/wumutong/Desktop/11_yellow_online/sign_num.txt")
+    val hdfsText = Utils.readFromTxtByLine("/Users/wumutong/conf/sign_name.txt")
     //生成指定sql
     val concatSql = formatSql(hdfsText, "num", "sign_sha256","20201101","20201131","logstash.dws_pubdefault_s_sms_day")
 
