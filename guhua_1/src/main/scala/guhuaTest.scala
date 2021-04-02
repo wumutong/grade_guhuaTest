@@ -35,9 +35,9 @@ object guhuaTest {
 //
 //    val tableName = args(0).split(",")(3)
 
-    val hdfsText = Utils.readFromTxtByLine("/Users/wumutong/conf/sign_name.txt")
+    val hdfsText = Utils.readFromTxtByLine("/Users/wumutong/conf/num_sign.txt")
     //生成指定sql
-    val concatSql = formatSql(hdfsText, "num", "sign_sha256","20201101","20201131","logstash.dws_pubdefault_s_sms_day")
+    val concatSql = formatSql(hdfsText, "num", "sign_sha256","20210301","20210331","logstash.dws_pubdefault_s_sms_day")
 
     println(concatSql)
 
@@ -56,9 +56,10 @@ object guhuaTest {
   // 根据场景 拼写相关sql
   def formatSql(key: Array[String], numName: String, sign_nameName: String,startDate:String,endDate:String,tableName:String): String = {
 
-    var formatSql = "select sign_sha256,brand,count(distinct CASE WHEN ac>0 THEN imei_sha256 ELSE NULL end) as act_uv," +
-                    " count(distinct imei_sha256 ) as act_all " +
-                    " from " +
+    var formatSql = "select step3.sign_sha256,step3.brand,count(step3.act_uv) as act_uv, count(step3.imei_sha256 ) as act_all " +
+                    "from( " +
+                      "select sign_sha256,brand,CASE WHEN ac>0 THEN imei_sha256 ELSE NULL end as act_uv, imei_sha256 " +
+                    "from " +
                      tableName +
                     " where " +
                     " stat_date >= " + startDate + " and stat_date <= "+endDate +
@@ -135,13 +136,13 @@ object guhuaTest {
       //签名相关格式 拼写
       for (j <- 0 until sign_names.length) {
         if (sign_names.length == 1) {
-          formatSql += sign_nameName + " like sha2(\"" + sign_names(j) + "\",256))"
+          formatSql += sign_nameName + " like concat ( \"%\","+ "sha2(\"" + sign_names(j) + "\",256),\"%\"))"
         } else if (sign_names.length > 1 && j == 0) {
-          formatSql += "(" + sign_nameName + " like sha2(\"" + sign_names(j) + "\",256) or "
+          formatSql += "(" + sign_nameName + " like concat ( \"%\","+  "sha2(\"" + sign_names(j) + "\",256) ,\"%\") or "
         } else if (sign_names.length > 1 && j < sign_names.length - 1) {
-          formatSql += sign_nameName + " like sha2(\"" + sign_names(j) + "\",256) or "
+          formatSql += sign_nameName + " like  concat ( \"%\","+  "sha2(\"" + sign_names(j) + "\",256),\"%\") or "
         } else if (sign_names.length > 1 && j == sign_names.length - 1) {
-          formatSql += sign_nameName + " like sha2(\"" + sign_names(j) + "\",256)))"
+          formatSql += sign_nameName + " like  concat ( \"%\","+ "sha2(\"" + sign_names(j) + "\",256),\"%\")))"
         }
       }
 
@@ -151,7 +152,13 @@ object guhuaTest {
     }
 
 
-    formatSql += ") group by sign_sha256,brand"
+    formatSql += ")group by " +
+      "sign_sha256," +
+      "brand," +
+      "CASE WHEN ac>0 THEN imei_sha256 ELSE NULL end, " +
+      "imei_sha256 )step3 " +
+      "group by " +
+      "step3.sign_sha256,step3.brand"
     formatSql
 
   }
